@@ -1,25 +1,25 @@
 import Header from "./Components/Header"
 import Guitar from "./Components/Guitar"
+import { db } from "./data/db"
+import { useState } from "react"
 
 function App() {
+  const [data, setData] = useState(db);
 
   return (
     <>
         <Header></Header>
-      
 
         <main className="container-xl mt-5">
             <h2 className="text-center">Nuestra Colección</h2>
 
             <div className="row mt-5">
-                <Guitar/>   
-                <Guitar/>   
-                <Guitar/>   
-                <Guitar/>   
-                <Guitar/>   
-                <Guitar/>   
-                <Guitar/>   
-                <Guitar/>   
+              {
+                data.map((element, i) => (
+                  <Guitar key={i}/>   
+                  )
+                )
+              }
             </div>
         </main>
 
