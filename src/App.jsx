@@ -1,25 +1,64 @@
 import Header from "./Components/Header"
 import Guitar from "./Components/Guitar"
 import { db } from "./data/db"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 function App() {
-  const [data, setData] = useState(db);
-  const [cart, setCart] = [];
+  const [data] = useState(db);
+  const [cart, setCart] = useState(JSON.parse(localStorage.getItem("cart")) ?? []);
+  const MIN_ITEMS = 1
+
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart])
 
   function addToCart(item){
     const itemExists = cart.findIndex(guitar => guitar.id === item.id);
     if(itemExists >= 0){
-      console.log("Ya existe en el carrito");
+      const updatedCart = [...cart];
+      updatedCart[itemExists].quantity++;
+      setCart(updatedCart);
     }else{
       item.quantity = 1;
       setCart(prevCart => [...prevCart, item]);
     }
+
+  }
+
+  function removeFromCart(idGuitar){
+    const newCart = cart.filter(item => item.id != idGuitar);
+    setCart(newCart);
+  }
+
+  function incrementQuantity(idGuitar){
+    const itemIndex = cart.findIndex(guitar => guitar.id === idGuitar);
+    const updatedCart = [...cart];
+    updatedCart[itemIndex].quantity++;
+    setCart(updatedCart);
+  }
+
+  function decrementQuantity(idGuitar){
+    const itemIndex = cart.findIndex(guitar => guitar.id === idGuitar);
+    const updatedCart = [...cart];
+
+    if(updatedCart[itemIndex].quantity <= MIN_ITEMS) return
+    updatedCart[itemIndex].quantity--;
+    setCart(updatedCart);
+  }
+
+  function cleanCart(){
+    setCart([]);
   }
 
   return (
     <>
-        <Header></Header>
+        <Header
+          cart={cart}
+          removeFromCart={removeFromCart}
+          incrementQuantity={incrementQuantity}
+          decrementQuantity={decrementQuantity}
+          cleanCart={cleanCart}
+        ></Header>
 
         <main className="container-xl mt-5">
             <h2 className="text-center">Nuestra Colección</h2>
@@ -30,7 +69,7 @@ function App() {
                   <Guitar 
                     key={guitar.id}
                     guitar={guitar}
-                    caddToCartrt={addToCart}
+                    addToCart={addToCart}
                   />   
                   )
                 )
